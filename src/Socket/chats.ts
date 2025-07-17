@@ -38,24 +38,10 @@ export const makeChatsSocket = (config: SocketConfig) => {
 	/** this mutex ensures that the notifications (receipts, messages etc.) are processed in order */
 	const processingMutex = makeMutex()
 
-class NodeCacheAdapter implements CacheStore {
-	private cache = new NodeCache({
-		stdTTL: DEFAULT_CACHE_TTLS.MSG_RETRY,
+	const placeholderResendCache = config.placeholderResendCache || new NodeCache({
+		stdTTL: DEFAULT_CACHE_TTLS.MSG_RETRY, // 1 hour
 		useClones: false
 	})
-
-	get<T>(key: string): T | undefined {
-		return this.cache.get<T>(key)
-	}
-
-	set<T>(key: string, value: T): void {
-		this.cache.set(key, value)
-	}
-
-	// أضف باقي الدوال المطلوبة في CacheStore حسب الحاجة
-}
-
-const placeholderResendCache = config.placeholderResendCache || new NodeCacheAdapter()
 	if(!config.placeholderResendCache) {
 		config.placeholderResendCache = placeholderResendCache
 	}
